@@ -42,13 +42,13 @@ if (class_exists('\core\event\course_module_viewed')) {
 
 $strvideofile    = get_string('modulename', 'videofile');
 $strvideofiles   = get_string('modulenameplural', 'videofile');
-$strsectionname  = get_string('sectionname', 'format_'.$course->format);
+$strsectionname  = get_string('sectionname', 'format_' . $course->format);
 $strname         = get_string('name');
 $strintro        = get_string('moduleintro');
 $strlastmodified = get_string('lastmodified');
 
 $PAGE->set_url('/mod/videofile/index.php', array('id' => $course->id));
-$PAGE->set_title($course->shortname.': '.$strvideofiles);
+$PAGE->set_title($course->shortname . ': ' . $strvideofiles);
 $PAGE->set_heading($course->fullname);
 $PAGE->navbar->add($strvideofiles);
 echo $OUTPUT->header();
@@ -64,11 +64,11 @@ $table = new html_table();
 $table->attributes['class'] = 'generaltable mod_index';
 
 if ($usesections) {
-    $table->head  = array ($strsectionname, $strname, $strintro);
-    $table->align = array ('center', 'left', 'left');
+    $table->head  = array($strsectionname, $strname, $strintro);
+    $table->align = array('center', 'left', 'left');
 } else {
-    $table->head  = array ($strlastmodified, $strname, $strintro);
-    $table->align = array ('left', 'left', 'left');
+    $table->head  = array($strlastmodified, $strname, $strintro);
+    $table->align = array('left', 'left', 'left');
 }
 
 $modinfo = get_fast_modinfo($course);
@@ -87,7 +87,7 @@ foreach ($videofiles as $videofile) {
             $currentsection = $videofile->section;
         }
     } else {
-        $printsection = '<span class="smallinfo">'.userdate($videofile->timemodified)."</span>";
+        $printsection = '<span class="smallinfo">' . userdate($videofile->timemodified) . "</span>";
     }
 
     $extra = empty($cm->extra) ? '' : $cm->extra;
@@ -95,16 +95,17 @@ foreach ($videofiles as $videofile) {
     if (!empty($cm->icon)) {
         // Each videofile has an icon in 2.0.
         $icon = '<img src="' . $OUTPUT->pix_url($cm->icon) .
-                '" class="activityicon" alt="' .
-                get_string('modulename', $cm->modname) . '" /> ';
+            '" class="activityicon" alt="' .
+            get_string('modulename', $cm->modname) . '" /> ';
     }
     // Dim hidden modules.
     $class = $videofile->visible ? '' : 'class="dimmed"';
-    $table->data[] = array (
+    $table->data[] = array(
         $printsection,
         "<a $class $extra href=\"view.php?id=$cm->id\">" .
             $icon . format_string($videofile->name) . "</a>",
-        format_module_intro('videofile', $videofile, $cm->id));
+        format_module_intro('videofile', $videofile, $cm->id)
+    );
 }
 
 echo html_writer::table($table);

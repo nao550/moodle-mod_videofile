@@ -29,7 +29,8 @@ require_once($CFG->dirroot . '/mod/videofile/locallib.php');
 /**
  * Videofile module renderer class
  */
-class mod_videofile_renderer extends plugin_renderer_base {
+class mod_videofile_renderer extends plugin_renderer_base
+{
 
     /**
      * Renders the videofile page header.
@@ -37,14 +38,17 @@ class mod_videofile_renderer extends plugin_renderer_base {
      * @param videofile videofile
      * @return string
      */
-    public function video_header($videofile) {
+    public function video_header($videofile)
+    {
         global $CFG;
 
         $output = '';
 
-        $name = format_string($videofile->get_instance()->name,
-                              true,
-                              $videofile->get_course());
+        $name = format_string(
+            $videofile->get_instance()->name,
+            true,
+            $videofile->get_course()
+        );
         $title = $this->page->course->shortname . ': ' . $name;
 
         $coursemoduleid = $videofile->get_course_module()->id;
@@ -57,7 +61,8 @@ class mod_videofile_renderer extends plugin_renderer_base {
         // Set the videojs flash fallback url.
         $swfurl = new moodle_url('/mod/videofile/video-js-4.12.8/video-js.swf');
         $this->page->requires->js_init_code(
-            'videojs.options.flash.swf = "' . $swfurl . '";');
+            'videojs.options.flash.swf = "' . $swfurl . '";'
+        );
 
         // Yui module handles responsive mode video resizing.
         if ($videofile->get_instance()->responsive) {
@@ -66,11 +71,14 @@ class mod_videofile_renderer extends plugin_renderer_base {
             $this->page->requires->yui_module(
                 'moodle-mod_videofile-videojs',
                 'M.mod_videofile.videojs.init',
-                array($videofile->get_instance()->id,
-                      $swfurl,
-                      $videofile->get_instance()->width,
-                      $videofile->get_instance()->height,
-                      (boolean) $config->limitdimensions));
+                array(
+                    $videofile->get_instance()->id,
+                    $swfurl,
+                    $videofile->get_instance()->width,
+                    $videofile->get_instance()->height,
+                    (bool) $config->limitdimensions
+                )
+            );
         }
 
         // Header setup.
@@ -82,9 +90,11 @@ class mod_videofile_renderer extends plugin_renderer_base {
 
         if (!empty($videofile->get_instance()->intro)) {
             $output .= $this->output->box_start('generalbox boxaligncenter', 'intro');
-            $output .= format_module_intro('videofile',
-                                           $videofile->get_instance(),
-                                           $coursemoduleid);
+            $output .= format_module_intro(
+                'videofile',
+                $videofile->get_instance(),
+                $coursemoduleid
+            );
             $output .= $this->output->box_end();
         }
 
@@ -96,7 +106,8 @@ class mod_videofile_renderer extends plugin_renderer_base {
      *
      * @return string
      */
-    public function video_footer() {
+    public function video_footer()
+    {
         return $this->output->footer();
     }
 
@@ -106,7 +117,8 @@ class mod_videofile_renderer extends plugin_renderer_base {
      * @param videofile videofile
      * @return string The page output.
      */
-    public function video_page($videofile) {
+    public function video_page($videofile)
+    {
         $output = '';
         $output .= $this->video_header($videofile);
         $output .= $this->video($videofile);
@@ -122,7 +134,8 @@ class mod_videofile_renderer extends plugin_renderer_base {
      * @param stored_file $file
      * @return string file url
      */
-    private function util_get_file_url($file) {
+    private function util_get_file_url($file)
+    {
         return moodle_url::make_pluginfile_url(
             $file->get_contextid(),
             $file->get_component(),
@@ -130,7 +143,8 @@ class mod_videofile_renderer extends plugin_renderer_base {
             $file->get_itemid(),
             $file->get_filepath(),
             $file->get_filename(),
-            false);
+            false
+        );
     }
 
     /**
@@ -140,14 +154,17 @@ class mod_videofile_renderer extends plugin_renderer_base {
      * @param string $areaname file area name (e.g. "videos")
      * @return array of stored_file objects
      */
-    private function util_get_area_files($contextid, $areaname) {
+    private function util_get_area_files($contextid, $areaname)
+    {
         $fs = get_file_storage();
-        return $fs->get_area_files($contextid,
-                                   'mod_videofile',
-                                   $areaname,
-                                   false,
-                                   'itemid, filepath, filename',
-                                   false);
+        return $fs->get_area_files(
+            $contextid,
+            'mod_videofile',
+            $areaname,
+            false,
+            'itemid, filepath, filename',
+            false
+        );
     }
 
     /**
@@ -156,7 +173,8 @@ class mod_videofile_renderer extends plugin_renderer_base {
      * @param int $contextid
      * @return url to the poster image (or the default image)
      */
-    private function get_poster_image($contextid) {
+    private function get_poster_image($contextid)
+    {
         $posterurl = null;
         $posters = $this->util_get_area_files($contextid, 'posters');
         foreach ($posters as $file) {
@@ -177,26 +195,29 @@ class mod_videofile_renderer extends plugin_renderer_base {
      * @param url to the video poster image
      * @return string the video element HTML
      */
-    private function get_video_element_html($videofile, $posterurl) {
+    private function get_video_element_html($videofile, $posterurl)
+    {
         /* The width and height are set to auto if responsive flag is set
            but is not ignored. They are still used to calculate proportions
            in the javascript that handles video resizing. */
         $width = ($videofile->get_instance()->responsive ?
-                  'auto' : $videofile->get_instance()->width);
+            'auto' : $videofile->get_instance()->width);
         $height = ($videofile->get_instance()->responsive ?
-                   'auto' : $videofile->get_instance()->height);
+            'auto' : $videofile->get_instance()->height);
 
         // Renders the video element.
         return html_writer::start_tag(
             'video',
-            array('id' => 'videofile-' . $videofile->get_instance()->id,
-                  'class' => 'video-js vjs-default-skin',
-                  'controls' => 'controls',
-                  'preload' => 'auto',
-                  'width' => $width,
-                  'height' => $height,
-                  'poster' => $posterurl,
-                  'data-setup' => '{}')
+            array(
+                'id' => 'videofile-' . $videofile->get_instance()->id,
+                'class' => 'video-js vjs-default-skin',
+                'controls' => 'controls',
+                'preload' => 'auto',
+                'width' => $width,
+                'height' => $height,
+                'poster' => $posterurl,
+                'data-setup' => '{}'
+            )
         );
     }
 
@@ -206,7 +227,8 @@ class mod_videofile_renderer extends plugin_renderer_base {
      * @param int $contextid
      * @return string HTML
      */
-    private function get_video_source_elements_html($contextid) {
+    private function get_video_source_elements_html($contextid)
+    {
         $output = '';
         $videos = $this->util_get_area_files($contextid, 'videos');
         foreach ($videos as $file) {
@@ -215,8 +237,10 @@ class mod_videofile_renderer extends plugin_renderer_base {
 
                 $output .= html_writer::empty_tag(
                     'source',
-                    array('src' => $videourl,
-                          'type' => $mimetype)
+                    array(
+                        'src' => $videourl,
+                        'type' => $mimetype
+                    )
                 );
             }
         }
@@ -231,7 +255,8 @@ class mod_videofile_renderer extends plugin_renderer_base {
      * @param int $contextid
      * @return string HTML
      */
-    private function get_video_caption_track_elements_html($contextid) {
+    private function get_video_caption_track_elements_html($contextid)
+    {
         $output = '';
         $first = true;
         $captions = $this->util_get_area_files($contextid, 'captions');
@@ -254,15 +279,19 @@ class mod_videofile_renderer extends plugin_renderer_base {
 
                     /* Strings not in language files come back as [[string]], don't
                        use those for labels. */
-                    if (substr($maybelabel, 0, 2) !== '[[' ||
-                            substr($maybelabel, -2, 2) === ']]') {
+                    if (
+                        substr($maybelabel, 0, 2) !== '[[' ||
+                        substr($maybelabel, -2, 2) === ']]'
+                    ) {
                         $label = $maybelabel;
                     }
                 }
 
-                $options = array('kind' => 'captions',
-                                 'src' => $captionurl,
-                                 'label' => $label);
+                $options = array(
+                    'kind' => 'captions',
+                    'src' => $captionurl,
+                    'label' => $label
+                );
                 if ($first) {
                     $options['default'] = 'default';
                     $first = false;
@@ -283,7 +312,8 @@ class mod_videofile_renderer extends plugin_renderer_base {
      * @param int $contextid
      * @return string HTML
      */
-    private function get_alternative_video_links_html($contextid) {
+    private function get_alternative_video_links_html($contextid)
+    {
         $output = '';
         $videooutput = '';
 
@@ -299,20 +329,28 @@ class mod_videofile_renderer extends plugin_renderer_base {
                     $videooutput .= ', ';
                 }
                 $extension = pathinfo($file->get_filename(), PATHINFO_EXTENSION);
-                $videooutput .= html_writer::tag('a',
-                                                 $extension,
-                                                 array('href' => $videourl));
+                $videooutput .= html_writer::tag(
+                    'a',
+                    $extension,
+                    array('href' => $videourl)
+                );
             }
         }
 
-        $output = html_writer::tag('p',
-                                   get_string('video_not_playing',
-                                              'videofile',
-                                              $videooutput),
-                                   array());
-        return html_writer::tag('div',
-                                $output,
-                                array('class' => 'videofile-not-playing-msg'));
+        $output = html_writer::tag(
+            'p',
+            get_string(
+                'video_not_playing',
+                'videofile',
+                $videooutput
+            ),
+            array()
+        );
+        return html_writer::tag(
+            'div',
+            $output,
+            array('class' => 'videofile-not-playing-msg')
+        );
     }
 
     /**
@@ -321,13 +359,14 @@ class mod_videofile_renderer extends plugin_renderer_base {
      * @param videofile $videofile
      * @return string HTML
      */
-    public function video(videofile $videofile) {
+    public function video(videofile $videofile)
+    {
         $output  = '';
         $contextid = $videofile->get_context()->id;
 
         // Open videofile div.
         $vclass = ($videofile->get_instance()->responsive ?
-                   'videofile videofile-responsive' : 'videofile');
+            'videofile videofile-responsive' : 'videofile');
         $output .= $this->output->container_start($vclass);
 
         // Open video tag.
